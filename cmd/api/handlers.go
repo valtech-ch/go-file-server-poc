@@ -42,7 +42,7 @@ func (app *Config) FileDownloadStream(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/octet-stream")
-	w.Header().Set("Content-Disposition", "attachment; filename=sample-pdf-download-10-mb.pdf")
+	w.Header().Set("Content-Disposition", "attachment; filename=<file-name>")
 	io.Copy(w, resp.Body)
 }
 

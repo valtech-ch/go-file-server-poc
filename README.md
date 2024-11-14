@@ -2,7 +2,7 @@
 
 ## Start
 
-1.  Replace `<file-url>` with actual file URL
+1.  Replace `<file-url>` and `<file-name>` with actual values. These are currently hardcoded, but would be dynamically returned by the lookup service.
 2.  `docker build -t file-service --platform linux/amd64 .`
 3.  `docker run -e PORT=3000 -p 3000:3000 file-service`
 
