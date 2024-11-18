@@ -7,7 +7,10 @@ import (
 	"os"
 )
 
-type Config struct{}
+type Config struct {
+	fileUrl  string
+	fileName string
+}
 
 func main() {
 	httpPort := os.Getenv("PORT")
@@ -15,7 +18,19 @@ func main() {
 		httpPort = "8080"
 	}
 
-	app := Config{}
+	fileUrl := os.Getenv("FILE_URL")
+	if fileUrl == "" {
+		log.Panic("FILE_URL not provided")
+	}
+	fileName := os.Getenv("FILE_NAME")
+	if fileUrl == "" {
+		log.Panic("FILE_NAME not provided")
+	}
+
+	app := Config{
+		fileUrl:  fileUrl,
+		fileName: fileName,
+	}
 
 	log.Printf("Starting file service on port %s\n", httpPort)
 

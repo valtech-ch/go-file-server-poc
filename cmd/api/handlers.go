@@ -2,28 +2,26 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
 	"log"
 	"net/http"
 	"time"
 )
 
-const fileUrl string = "<file-url>"
-
-func getFileUrlById(fileId string) (name string, e error) {
+// Possible improvement: use Redis cache to reduce lookup time
+func getFileUrlById(app *Config, fileId string) (name string, e error) {
 	log.Printf("Requested file id: %v\n", fileId)
 
 	// simulate network delay
 	time.Sleep(time.Second * 1)
 
-	return fileUrl, nil
+	return app.fileUrl, nil
 }
 
 func (app *Config) FileDownloadStream(w http.ResponseWriter, r *http.Request) {
 	fileId := r.PathValue("fileId")
 
-	url, err := getFileUrlById(fileId)
+	url, err := getFileUrlById(app, fileId)
 	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
 		w.Write([]byte("File not found"))
@@ -33,16 +31,34 @@ func (app *Config) FileDownloadStream(w http.ResponseWriter, r *http.Request) {
 	resp, err := http.Get(url)
 
 	if err != nil {
-		fmt.Println(err)
+		log.Println("HTTP Get error: ", err)
 		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte("Could not load file"))
+		w.Write([]byte("Could not load file due to error"))
 		return
-	} else {
-		log.Println("Sending file")
 	}
 
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		log.Println("HTTP Response Status:", resp.StatusCode, http.StatusText(resp.StatusCode))
+
+		body, err := io.ReadAll(resp.Body)
+		if err != nil {
+			log.Println("Reading response body error:", err)
+		}
+
+		log.Println("HTTP Response Body:", string(body))
+
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte("Could not load file due to status code"))
+		return
+	}
+
+	log.Println("Sending file")
 	w.Header().Set("Content-Type", "application/octet-stream")
-	w.Header().Set("Content-Disposition", "attachment; filename=<file-name>")
+	w.Header().Set("Content-Disposition", "attachment; filename="+app.fileName)
+
+	// See: https://itnext.io/optimizing-large-file-transfers-in-linux-with-go-an-exploration-of-tcp-and-syscall-ebe1b93fb72f
 	io.Copy(w, resp.Body)
 }
 
