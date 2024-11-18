@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"io"
 	"log"
+	"math/rand/v2"
 	"net/http"
 	"time"
 )
@@ -15,7 +16,12 @@ func getFileUrlById(app *Config, fileId string) (name string, e error) {
 	// simulate network delay
 	time.Sleep(time.Second * 1)
 
-	return app.fileUrl, nil
+	randomNumber := rand.IntN(len(app.fileUrls))
+	fileUrl := app.fileUrls[randomNumber]
+
+	log.Printf("using %v, from index %v", fileUrl, randomNumber)
+
+	return fileUrl, nil
 }
 
 func (app *Config) FileDownloadStream(w http.ResponseWriter, r *http.Request) {

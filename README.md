@@ -3,6 +3,7 @@
 ## Start
 
 1.  Copy `.env.example` file as `.env`. Replace the values of the file. These are currently hardcoded, but would be dynamically returned by the lookup service.
+    - FILEURLS: The go service wasn't able to respond to all requests, due to the fact that the file server returned 503 (unavailable). The current solution is to pass in multiple URLs - each being served by a different file server. The file-service itself then picks randomly between one of the passed in URLs.
 2.  `docker build -t file-service --platform linux/amd64 .`
 3.  `docker run -e PORT=3000 -p 3000:3000 file-service`
 

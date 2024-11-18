@@ -5,10 +5,11 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 )
 
 type Config struct {
-	fileUrl  string
+	fileUrls []string
 	fileName string
 }
 
@@ -18,7 +19,7 @@ func main() {
 		httpPort = "8080"
 	}
 
-	fileUrl := os.Getenv("FILE_URL")
+	fileUrl := os.Getenv("FILE_URLS")
 	if fileUrl == "" {
 		log.Panic("FILE_URL not provided")
 	}
@@ -28,7 +29,7 @@ func main() {
 	}
 
 	app := Config{
-		fileUrl:  fileUrl,
+		fileUrls: strings.Split(fileUrl, ","),
 		fileName: fileName,
 	}
 
